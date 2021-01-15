@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "yarn react-native-fix-image && react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "pod": "cd ios; pod install; cd ..;"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",
