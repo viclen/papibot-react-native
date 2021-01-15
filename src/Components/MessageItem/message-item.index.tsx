@@ -1,16 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { IMessage } from 'react-native-gifted-chat';
-import { Message } from '../../interfaces/interfaces';
 import Theme from '../Theme/theme.index';
 
 interface MessageItemProps {
     message: IMessage;
-}
-
-const accessibilityIgnore = {
-    accessibilityComponentType: undefined,
-    accessibilityTraits: undefined
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
@@ -21,11 +16,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
     if (message.user._id === 0) {
         return (
             <View style={styles.receivedMessageContainer}>
-                <View {...accessibilityIgnore} style={styles.receivedText}>
+                <TouchableOpacity style={styles.receivedText}>
                     <Text style={{ color: 'white' }}>
                         {message.text}
                     </Text>
-                </View>
+                </TouchableOpacity>
                 <Text style={styles.time}>
                     {formatTimestamp(message.createdAt.toLocaleString())}
                 </Text>
@@ -34,11 +29,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
     } else {
         return (
             <View style={styles.sentMessageContainer}>
-                <View {...accessibilityIgnore} style={styles.sentText}>
+                <TouchableOpacity style={styles.sentText}>
                     <Text style={{ color: 'white' }}>
                         {message.text}
                     </Text>
-                </View>
+                </TouchableOpacity>
                 <Text style={styles.time}>
                     {formatTimestamp(message.createdAt.toLocaleString())}
                 </Text>
@@ -82,7 +77,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 0,
         maxWidth: "80%",
-        backgroundColor: Theme.colors.accent,
+        backgroundColor: Theme.colors.backdrop,
         color: 'white',
         textTransform: 'none',
         paddingHorizontal: 10,
