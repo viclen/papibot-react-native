@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { Button } from 'react-native-paper';
+import { IMessage } from 'react-native-gifted-chat';
 import { Message } from '../../interfaces/interfaces';
 import Theme from '../Theme/theme.index';
 
 interface MessageItemProps {
-    message: Message;
+    message: IMessage;
 }
 
 const accessibilityIgnore = {
@@ -18,25 +18,29 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
         return strTime;
     }
 
-    if (message.userId === 0) {
+    if (message.user._id === 0) {
         return (
             <View style={styles.receivedMessageContainer}>
-                <Button {...accessibilityIgnore} style={styles.receivedText}>
-                    {message.text}
-                </Button>
+                <View {...accessibilityIgnore} style={styles.receivedText}>
+                    <Text style={{ color: 'white' }}>
+                        {message.text}
+                    </Text>
+                </View>
                 <Text style={styles.time}>
-                    {formatTimestamp(message.createdAt)}
+                    {formatTimestamp(message.createdAt.toLocaleString())}
                 </Text>
             </View>
         );
     } else {
         return (
             <View style={styles.sentMessageContainer}>
-                <Button {...accessibilityIgnore} style={styles.sentText}>
-                    {message.text}
-                </Button>
+                <View {...accessibilityIgnore} style={styles.sentText}>
+                    <Text style={{ color: 'white' }}>
+                        {message.text}
+                    </Text>
+                </View>
                 <Text style={styles.time}>
-                    {formatTimestamp(message.createdAt)}
+                    {formatTimestamp(message.createdAt.toLocaleString())}
                 </Text>
             </View>
         );
@@ -48,27 +52,41 @@ const styles = StyleSheet.create({
         width: "100%",
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        marginBottom: 5
     },
     sentMessageContainer: {
         width: "100%",
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
+        marginBottom: 5
     },
     receivedText: {
         textAlign: "left",
-        borderTopLeftRadius: 50,
-        borderBottomLeftRadius: 50,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        borderBottomRightRadius: 15,
+        borderBottomLeftRadius: 0,
         maxWidth: "80%",
         backgroundColor: Theme.colors.primary,
+        color: 'white',
+        textTransform: 'none',
+        paddingHorizontal: 10,
+        paddingVertical: 5
     },
     sentText: {
         textAlign: "left",
-        borderTopLeftRadius: 50,
-        borderBottomLeftRadius: 50,
+        borderTopRightRadius: 15,
+        borderTopLeftRadius: 15,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 0,
         maxWidth: "80%",
         backgroundColor: Theme.colors.accent,
+        color: 'white',
+        textTransform: 'none',
+        paddingHorizontal: 10,
+        paddingVertical: 5
     },
     time: {
         color: Theme.colors.text,
