@@ -22,12 +22,3 @@ target 'Papibot' do
     flipper_post_install(installer)
   end
 end
-
-target 'Papibot-tvOS' do
-  # Pods for Papibot-tvOS
-
-  target 'Papibot-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
