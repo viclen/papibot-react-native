@@ -1,151 +1,129 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Platform, View, ScrollView, NativeScrollEvent, FlatList } from 'react-native';
-import { GiftedChat, IMessage } from 'react-native-gifted-chat';
-import ChatInput from '../../Components/ChatInput/chat-input.index';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faPaperPlane} from '@fortawesome/free-solid-svg-icons';
+import React, {useState, useEffect} from 'react';
+import {View} from 'react-native';
+import {GiftedChat, IMessage} from 'react-native-gifted-chat';
 import MessageItem from '../../Components/MessageItem/message-item.index';
 
-import { loremIpsum } from '../../util/utils';
+import Theme from '../../Components/Theme/theme.index';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
+import 'moment/locale/pt-br';
+import {
+  getMessages,
+  sendMessage,
+} from '../../services/messages/messages.service';
 
 const Chat: React.FC = () => {
-    const [messages, setMessages] = useState<Array<IMessage>>([]);
-    const [text, setText] = useState("");
-    const listRef = useRef<ScrollView>(null);
+  const [messages, setMessages] = useState<Array<IMessage>>([]);
+  const [text, setText] = useState('');
 
-    useEffect(() => {
-        const arr: Array<IMessage> = [];
+  useEffect(() => {
+    console.log('getting messages...');
 
-        for (let i = 0; i < 50; i++) {
-            const sent = Math.random() > 0.5;
+    getMessages().then(({data}) => {
+      setMessages(
+        data.map((message: any) => ({
+          _id: message.id,
+          text: message.text,
+          createdAt: new Date(message.createdAt),
+          sent: message.UserId > 0,
+          received: message.UserId === 0,
+          user: {
+            _id: message.UserId > 0 ? 1 : 0,
+            name: message.UserId > 0 ? 'Você' : 'Papi',
+          },
+        })),
+      );
+    });
+  }, []);
 
-            arr.push({
-                _id: i,
-                text: i + loremIpsum(3 + Math.floor(Math.random() * 5)),
-                createdAt: new Date(),
-                sent,
-                received: !sent,
-                user: {
-                    _id: sent ? 1 : 0,
-                    name: sent ? "Você" : "Papi",
-                }
-            });
-        }
+  const handleSendMessage = async () => {
+    if (!text) return;
 
-        setMessages(arr);
-    }, []);
+    setMessages([
+      {
+        _id: -messages.length,
+        createdAt: new Date(),
+        text,
+        user: {
+          _id: 1,
+          name: 'Você',
+        },
+      },
+      ...messages,
+    ]);
 
-    const sendMessage = () => {
-        setMessages([{
-            _id: messages.length,
-            createdAt: new Date(),
-            text,
-            user: {
-                _id: 1,
-                name: "Você",
-            },
-        }, ...messages]);
+    setText('');
 
-        setText("");
+    const {data} = await sendMessage(text);
 
-        listRef.current?.scrollToEnd();
+    setMessages((messages) => {
+      messages[0] = {
+        _id: data.sent.id,
+        createdAt: new Date(data.sent.createdAt),
+        sent: true,
+        received: false,
+        text: data.sent.text,
+        user: {
+          _id: data.sent.UserId,
+          name: 'Você',
+        },
+      };
 
-        setTimeout(() => setMessages(messages => [{
-            _id: messages.length,
-            createdAt: new Date(),
-            text: loremIpsum(3 + Math.floor(Math.random() * 5)),
-            user: {
-                _id: 0,
-                name: "Papi",
-            }
-        }, ...messages]), 500);
-    }
+      return [
+        {
+          _id: data.answer.id,
+          createdAt: new Date(data.answer.createdAt),
+          text: data.answer.text,
+          sent: false,
+          received: true,
+          user: {
+            _id: 0,
+            name: 'Papi',
+          },
+        },
+        ...messages,
+      ];
+    });
+  };
 
-    const loadMore = () => {
-        const arr: Array<IMessage> = [];
+  const SendButton = ({}) => (
+    <View
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        paddingRight: 5,
+      }}>
+      <TouchableOpacity
+        onPress={handleSendMessage}
+        style={{
+          backgroundColor: Theme.colors.accent,
+          borderRadius: 100,
+          height: 30,
+          width: 30,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <FontAwesomeIcon icon={faPaperPlane} size={15} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
 
-        for (let i = 0; i < 10; i++) {
-            const sent = Math.random() > 0.5;
-
-            arr.push({
-                _id: messages.length + i,
-                text: i + loremIpsum(3 + Math.floor(Math.random() * 5)),
-                createdAt: new Date(),
-                sent,
-                received: !sent,
-                user: {
-                    _id: sent ? 1 : 0,
-                    name: sent ? "Você" : "Papi",
-                }
-            });
-        }
-
-        setMessages([...messages, ...arr]);
-    }
-
-    return (
-        <GiftedChat
-            messages={messages}
-            onSend={() => sendMessage()}
-            text={text}
-            onInputTextChanged={setText}
-            renderMessage={({ currentMessage }) => currentMessage && (
-                <MessageItem message={currentMessage} />
-            )}
-            onLoadEarlier={() => loadMore()}
-            loadEarlier={true}
-        />
-
-        // <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        //     {/* <ScrollView
-        //                 ref={listRef}
-        //                 style={styles.list}
-        //                 onScroll={({ nativeEvent }) => {
-        //                     if (isCloseToTop(nativeEvent)) {
-        //                         loadMore()
-        //                     }
-        //                 }}
-        //             >
-        //                 {messages.map((message) => (
-        //                     <MessageItem key={message.id.toString()} message={message} />
-        //                 ))}
-        //             </ScrollView> */}
-
-        //     <View style={styles.listContainer}>
-        //         <FlatList
-        //             inverted
-        //             data={messages}
-        //             renderItem={({ item }) => (
-        //                 <MessageItem message={item} />
-        //             )}
-        //             style={styles.list}
-        //             keyExtractor={({ id }) => id.toString()}
-        //             onEndReached={() => loadMore()}
-        //         />
-        //     </View>
-
-        //     <View style={styles.inputContainer}>
-        //         <ChatInput value={text} onChangeText={setText} onSend={sendMessage} />
-        //     </View>
-        // </KeyboardAvoidingView>
-    );
-}
-
-const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 1,
-        justifyContent: 'space-around'
-    },
-    listContainer: {
-        flexGrow: 1
-    },
-    list: {
-        width: "100%"
-    },
-    inputContainer: {
-        flex: 1,
-        height: 100
-    }
-});
+  return (
+    <GiftedChat
+      messages={messages}
+      text={text}
+      onInputTextChanged={setText}
+      renderMessage={({currentMessage}) =>
+        currentMessage && <MessageItem message={currentMessage} />
+      }
+      loadEarlier={false}
+      renderSend={SendButton}
+      locale={'pt-br'}
+    />
+  );
+};
 
 export default Chat;
