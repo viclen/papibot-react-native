@@ -21,27 +21,29 @@ const Login: React.FC<{navigation: any}> = ({navigation}) => {
     <LinearGradient
       style={styles.container}
       colors={[Theme.colors.backdrop, Theme.colors.background]}>
-        <Text style={styles.logo}>Papibot</Text>
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Email"
-            placeholderTextColor={Theme.colors.placeholder}
-            onChangeText={(text) => setEmail(text)}
-          />
-        </View>
-        <View style={styles.inputView}>
-          <TextInput
-            secureTextEntry
-            style={styles.inputText}
-            placeholder="Senha"
-            placeholderTextColor={Theme.colors.placeholder}
-            onChangeText={(text) => setPassword(text)}
-          />
-        </View>
-        <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-          <Text style={styles.loginText}>LOGIN</Text>
-        </TouchableOpacity>
+      <Text style={styles.logo}>Papibot</Text>
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputText}
+          placeholder="Email"
+          placeholderTextColor={Theme.colors.placeholder}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+        />
+      </View>
+      <View style={styles.inputView}>
+        <TextInput
+          secureTextEntry
+          style={styles.inputText}
+          placeholder="Senha"
+          placeholderTextColor={Theme.colors.placeholder}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+        />
+      </View>
+      <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+        <Text style={styles.loginText}>LOGIN</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 };

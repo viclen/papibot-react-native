@@ -21,25 +21,26 @@ const Chat: React.FC = () => {
   useEffect(() => {
     console.log('getting messages...');
 
-    getMessages().then(({data}) => {
-      setMessages(
-        data.map((message: any) => ({
-          _id: message.id,
-          text: message.text,
-          createdAt: new Date(message.createdAt),
-          sent: message.UserId > 0,
-          received: message.UserId === 0,
-          user: {
-            _id: message.UserId > 0 ? 1 : 0,
-            name: message.UserId > 0 ? 'Você' : 'Papi',
-          },
-        })),
-      );
-    });
+    const data = getMessages();
+    setMessages(
+      data.map((message: string, index: number) => ({
+        _id: index,
+        text: message,
+        createdAt: new Date(),
+        sent: index % 2 === 0,
+        received: index % 2 !== 0,
+        user: {
+          _id: index % 2 === 0 ? 1 : 0,
+          name: index % 2 === 0 ? 'Você' : 'Papibot',
+        },
+      })),
+    );
   }, []);
 
   const handleSendMessage = async () => {
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     setMessages([
       {
@@ -58,8 +59,8 @@ const Chat: React.FC = () => {
 
     const {data} = await sendMessage(text);
 
-    setMessages((messages) => {
-      messages[0] = {
+    setMessages((m) => {
+      m[0] = {
         _id: data.sent.id,
         createdAt: new Date(data.sent.createdAt),
         sent: true,
@@ -83,7 +84,7 @@ const Chat: React.FC = () => {
             name: 'Papi',
           },
         },
-        ...messages,
+        ...m,
       ];
     });
   };
